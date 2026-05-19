@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Talk Talk English</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <button id="card-box-btn" class="card-box-btn" type="button">Card Box</button>
+      <h1>Talk Talk English</h1>
+      <p class="subtitle">Speak the sentence and clear each step</p>
+      <button id="test-mode-btn" class="test-mode-btn" type="button">Test</button>
+      <button id="reset-btn" class="reset-btn" type="button">Reset</button>
+    </header>
+
+    <main>
+      <section id="steps-screen">
+        <div class="steps-header">
+          <h2>Choose a Step</h2>
+          <p>Each step has 3 phrases. Say each phrase correctly 5 times.</p>
+        </div>
+        <p id="test-mode-banner" class="test-mode-banner hidden">TEST MODE ACTIVE</p>
+        <p id="steps-message" class="steps-message hidden"></p>
+        <div id="steps-grid" class="steps-grid"></div>
+      </section>
+
+      <section id="card-box-screen" class="hidden">
+        <div class="learning-header">
+          <button id="card-box-back-btn" class="text-btn" type="button">Back to Steps</button>
+        </div>
+
+        <div class="card-box-panel">
+          <div class="steps-header">
+            <h2>Card Collection</h2>
+            <p>Collect cards by clearing steps.</p>
+          </div>
+          <div id="card-sections" class="card-sections"></div>
+        </div>
+      </section>
+
+      <section id="review-screen" class="hidden">
+        <div class="learning-header">
+          <button id="review-back-btn" class="text-btn" type="button">Back to Steps</button>
+        </div>
+
+        <div class="card-wrap">
+          <div class="card learning-card">
+            <div class="badge">
+              <span id="review-step-label">Review</span>
+              <span id="review-status">Item 1 / 1</span>
+            </div>
+
+            <p class="prompt-label">Shall we review what we learned before?</p>
+            <p id="review-english" class="english">It's my turn now.</p>
+            <p id="review-korean" class="korean hidden">이제 내 차례야.</p>
+
+            <div id="review-slots" class="success-slots" aria-label="Review progress"></div>
+            <p id="review-feedback" class="feedback-text">Press the mic and say the sentence once.</p>
+
+            <div class="button-group">
+              <button id="review-listen-btn" class="btn primary" type="button">👂 Listen</button>
+              <button id="review-record-btn" class="btn mic-btn" type="button">🎤 Start Mic</button>
+              <button id="review-start-btn" class="btn secondary hidden" type="button">Start Step</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="learning-screen" class="hidden">
+        <div class="learning-header">
+          <button id="back-btn" class="text-btn" type="button">Back to Steps</button>
+        </div>
+
+        <div class="card-wrap">
+          <div class="card learning-card">
+            <div class="badge">
+              <span id="step-label">Step 1</span>
+              <span id="phrase-status">Phrase 1 / 3</span>
+            </div>
+
+            <p class="prompt-label">Say this sentence</p>
+            <p id="english" class="english">It's my turn now.</p>
+            <p id="korean" class="korean hidden">이제 내 차례야.</p>
+
+            <div id="success-slots" class="success-slots" aria-label="Success progress"></div>
+            <p id="feedback-text" class="feedback-text">Press the mic and try speaking.</p>
+
+            <div class="button-group">
+              <button id="speak-btn" class="btn primary" type="button">👂 Listen</button>
+              <button id="record-btn" class="btn mic-btn" type="button">🎤 Start Mic</button>
+              <button id="meaning-btn" class="btn secondary" type="button" disabled>Show Meaning</button>
+              <button id="next-btn" class="btn next-btn" type="button" disabled>Next</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="card-detail-modal" class="modal hidden" hidden>
+    <div class="modal-backdrop"></div>
+    <div class="modal-card">
+      <button id="card-detail-close-btn" class="modal-close" type="button">Close</button>
+      <div id="card-detail-preview" class="card-detail-preview"></div>
+      <p id="card-detail-title" class="card-detail-title">Card</p>
+      <p id="card-detail-type" class="card-detail-type">normal</p>
+    </div>
+  </div>
+
+  <div id="reward-modal" class="modal hidden" hidden>
+    <div class="modal-backdrop"></div>
+    <div id="reward-card" class="modal-card reward-card">
+      <button id="reward-close-btn" class="modal-close" type="button">Close</button>
+      <div id="card-reveal-stage" class="card-reveal-stage">
+        <div id="reward-glow" class="glow-layer"></div>
+        <div id="reward-burst" class="burst-layer hidden" aria-hidden="true">
+          <span class="burst-ring burst-ring-1"></span>
+          <span class="burst-ring burst-ring-2"></span>
+          <span class="burst-dot burst-dot-1"></span>
+          <span class="burst-dot burst-dot-2"></span>
+          <span class="burst-dot burst-dot-3"></span>
+          <span class="burst-dot burst-dot-4"></span>
+          <span class="burst-dot burst-dot-5"></span>
+          <span class="burst-dot burst-dot-6"></span>
+          <span class="burst-dot burst-dot-7"></span>
+          <span class="burst-dot burst-dot-8"></span>
+          <span class="burst-dot burst-dot-9"></span>
+          <span class="burst-dot burst-dot-10"></span>
+          <span class="burst-dot burst-dot-11"></span>
+          <span class="burst-dot burst-dot-12"></span>
+          <span class="burst-dot burst-dot-13"></span>
+          <span class="burst-dot burst-dot-14"></span>
+          <span class="burst-dot burst-dot-15"></span>
+          <span class="burst-dot burst-dot-16"></span>
+          <span class="burst-dot burst-dot-17"></span>
+          <span class="burst-dot burst-dot-18"></span>
+          <span class="burst-dot burst-dot-19"></span>
+          <span class="burst-dot burst-dot-20"></span>
+          <span class="burst-dot burst-dot-21"></span>
+          <span class="burst-dot burst-dot-22"></span>
+        </div>
+        <div id="reward-preview" class="card-detail-preview"></div>
+      </div>
+      <p class="reward-title">New Card!</p>
+      <p id="reward-card-id" class="card-detail-title">normal_01</p>
+      <p id="reward-card-type" class="card-detail-type">Type: normal</p>
+      <div id="reward-sparkles" class="reward-sparkles hidden" aria-hidden="true">
+        <span class="sparkle sparkle-1"></span>
+        <span class="sparkle sparkle-2"></span>
+        <span class="sparkle sparkle-3"></span>
+        <span class="sparkle sparkle-4"></span>
+        <span class="sparkle sparkle-5"></span>
+        <span class="sparkle sparkle-6"></span>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="app.js?v=20260416-1"></script>
+</body>
+</html>
