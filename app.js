@@ -1,7 +1,7 @@
 import { phrases } from "./data/phrases.js";
 
-const PHRASES_PER_STEP = 3;
-const PHRASE_TARGET = 7;
+const PHRASES_PER_STEP = 2;
+const PHRASE_TARGET = 3;
 const REVIEW_TARGET = 3;
 const TOTAL_STEPS = 50;
 const AUTO_ADVANCE_DELAY = 1200;
@@ -16,14 +16,14 @@ const CARD_TOTALS = {
 };
 
 const STORAGE_KEYS = {
-  unlockedSteps: "kids-english-steps-unlocked",
-  completedSteps: "kids-english-steps-completed",
-  phraseProgress: "kids-english-steps-phrase-progress",
-  phraseReviews: "kids-english-phrase-reviews",
-  lastUnlockDate: "kids-english-steps-last-unlock-date",
-  cards: "kids-english-cards",
-  testMode: "kids-english-test-mode",
-  cardOrder: "kids-english-card-order"
+  unlockedSteps: "talkTalkEnglishJuniorUnlockedSteps",
+  completedSteps: "talkTalkEnglishJuniorCompletedSteps",
+  phraseProgress: "talkTalkEnglishJuniorPhraseProgress",
+  phraseReviews: "talkTalkEnglishJuniorPhraseReviews",
+  lastUnlockDate: "talkTalkEnglishJuniorLastUnlockDate",
+  cards: "talkTalkEnglishJuniorCards",
+  testMode: "talkTalkEnglishJuniorTestMode",
+  cardOrder: "talkTalkEnglishJuniorCardOrder"
 };
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -740,7 +740,7 @@ function getRewardCard(type, stepNumber) {
   if (type === "super") {
     rewardSequence = Math.floor(stepNumber / 10);
   } else if (type === "special") {
-    rewardSequence = Math.floor(stepNumber / 3);
+    rewardSequence = Math.floor(stepNumber / 5);
   }
 
   const normalizedSequence = Math.max(1, rewardSequence);
@@ -752,24 +752,35 @@ function getRewardCard(type, stepNumber) {
 }
 
 function addCard(card) {
-  if (state.collectedCards.some((item) => item.id === card.id && item.type === card.type)) {
-    return null;
+  if (!state.collectedCards.some((item) => item.id === card.id && item.type === card.type)) {
+    state.collectedCards.push(card);
   }
 
-  state.collectedCards.push(card);
   return card;
 }
 
 function giveStepRewards(stepNumber) {
+  const rewards = [];
+  const normalCard = addCard(getRewardCard("normal", stepNumber));
+  if (normalCard) {
+    rewards.push(normalCard);
+  }
+
+  if (stepNumber % 5 === 0) {
+    const specialCard = addCard(getRewardCard("special", stepNumber));
+    if (specialCard) {
+      rewards.push(specialCard);
+    }
+  }
+
   if (stepNumber % 10 === 0) {
-    return addCard(getRewardCard("super", stepNumber));
+    const superCard = addCard(getRewardCard("super", stepNumber));
+    if (superCard) {
+      rewards.push(superCard);
+    }
   }
 
-  if (stepNumber % 3 === 0) {
-    return addCard(getRewardCard("special", stepNumber));
-  }
-
-  return addCard(getRewardCard("normal", stepNumber));
+  return rewards;
 }
 
 function reconcileCompletedStepRewards() {
@@ -779,20 +790,7 @@ function reconcileCompletedStepRewards() {
     .filter((stepNumber) => Number.isInteger(stepNumber) && stepNumber >= 1 && stepNumber <= TOTAL_STEPS)
     .sort((a, b) => a - b)
     .forEach((stepNumber) => {
-      let expectedCard = null;
-
-      if (stepNumber % 10 === 0) {
-        expectedCard = getRewardCard("super", stepNumber);
-      } else if (stepNumber % 3 === 0) {
-        expectedCard = getRewardCard("special", stepNumber);
-      } else {
-        expectedCard = getRewardCard("normal", stepNumber);
-      }
-
-      const restoredCard = addCard(expectedCard);
-      if (restoredCard) {
-        restoredCards.push(restoredCard);
-      }
+      restoredCards.push(...giveStepRewards(stepNumber));
     });
 
   return restoredCards;
@@ -1328,7 +1326,7 @@ function getStepRewardType(stepNumber) {
     return "super";
   }
 
-  if (stepNumber % 3 === 0) {
+  if (stepNumber % 5 === 0) {
     return "special";
   }
 
@@ -1544,7 +1542,10 @@ function moveToNextPhraseOrFinishStep() {
 
   if (nextPhraseIndex === -1 || nextPhraseIndex >= stepPhrases.length) {
     const nextStep = currentStep + 1;
-    const awardedCard = completeStep(currentStep);
+    const awardedCards = completeStep(currentStep);
+    const rewardToShow = Array.isArray(awardedCards)
+      ? awardedCards[awardedCards.length - 1]
+      : awardedCards;
     isReplayingCompletedStep = false;
     saveState();
     renderSteps();
@@ -1558,8 +1559,8 @@ function moveToNextPhraseOrFinishStep() {
 
     showStepsScreen();
 
-    if (awardedCard) {
-      openRewardModal(awardedCard);
+    if (rewardToShow) {
+      openRewardModal(rewardToShow);
     }
     return;
   }
