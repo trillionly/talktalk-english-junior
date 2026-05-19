@@ -740,7 +740,12 @@ function getRewardCard(type, stepNumber) {
   if (type === "super") {
     rewardSequence = Math.floor(stepNumber / 10);
   } else if (type === "special") {
-    rewardSequence = Math.floor(stepNumber / 5);
+    rewardSequence = Math.floor(stepNumber / 3) - Math.floor(stepNumber / 30);
+  } else if (type === "normal") {
+    rewardSequence = stepNumber
+      - Math.floor(stepNumber / 3)
+      - Math.floor(stepNumber / 10)
+      + Math.floor(stepNumber / 30);
   }
 
   const normalizedSequence = Math.max(1, rewardSequence);
@@ -760,27 +765,15 @@ function addCard(card) {
 }
 
 function giveStepRewards(stepNumber) {
-  const rewards = [];
-  const normalCard = addCard(getRewardCard("normal", stepNumber));
-  if (normalCard) {
-    rewards.push(normalCard);
-  }
-
-  if (stepNumber % 5 === 0) {
-    const specialCard = addCard(getRewardCard("special", stepNumber));
-    if (specialCard) {
-      rewards.push(specialCard);
-    }
-  }
-
   if (stepNumber % 10 === 0) {
-    const superCard = addCard(getRewardCard("super", stepNumber));
-    if (superCard) {
-      rewards.push(superCard);
-    }
+    return addCard(getRewardCard("super", stepNumber));
   }
 
-  return rewards;
+  if (stepNumber % 3 === 0) {
+    return addCard(getRewardCard("special", stepNumber));
+  }
+
+  return addCard(getRewardCard("normal", stepNumber));
 }
 
 function reconcileCompletedStepRewards() {
@@ -790,7 +783,10 @@ function reconcileCompletedStepRewards() {
     .filter((stepNumber) => Number.isInteger(stepNumber) && stepNumber >= 1 && stepNumber <= TOTAL_STEPS)
     .sort((a, b) => a - b)
     .forEach((stepNumber) => {
-      restoredCards.push(...giveStepRewards(stepNumber));
+      const restoredCard = giveStepRewards(stepNumber);
+      if (restoredCard) {
+        restoredCards.push(restoredCard);
+      }
     });
 
   return restoredCards;
@@ -1326,7 +1322,7 @@ function getStepRewardType(stepNumber) {
     return "super";
   }
 
-  if (stepNumber % 5 === 0) {
+  if (stepNumber % 3 === 0) {
     return "special";
   }
 
@@ -1542,10 +1538,7 @@ function moveToNextPhraseOrFinishStep() {
 
   if (nextPhraseIndex === -1 || nextPhraseIndex >= stepPhrases.length) {
     const nextStep = currentStep + 1;
-    const awardedCards = completeStep(currentStep);
-    const rewardToShow = Array.isArray(awardedCards)
-      ? awardedCards[awardedCards.length - 1]
-      : awardedCards;
+    const awardedCard = completeStep(currentStep);
     isReplayingCompletedStep = false;
     saveState();
     renderSteps();
@@ -1559,8 +1552,8 @@ function moveToNextPhraseOrFinishStep() {
 
     showStepsScreen();
 
-    if (rewardToShow) {
-      openRewardModal(rewardToShow);
+    if (awardedCard) {
+      openRewardModal(awardedCard);
     }
     return;
   }
